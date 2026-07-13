@@ -1,0 +1,151 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+
+datasource db {
+
+ provider = "postgresql"
+
+ url = env("DATABASE_URL")
+
+}
+
+
+enum Role {
+
+ ADMIN
+
+ GESTOR
+
+ ANALISTA
+
+ FORNECEDOR
+
+ MOTORISTA
+
+}
+
+
+
+enum StatusCarga {
+
+ PROGRAMADA
+
+ EM_TRANSITO
+
+ ENTREGUE
+
+ ATRASADA
+
+ CANCELADA
+
+}
+
+
+
+model User {
+
+ id String @id @default(uuid())
+
+ name String
+
+ email String @unique
+
+ password String
+
+ role Role @default(ANALISTA)
+
+ createdAt DateTime @default(now())
+
+}
+
+
+
+model Supplier {
+
+ id String @id @default(uuid())
+
+ name String
+
+ cnpj String @unique
+
+ phone String?
+
+ reliability Float @default(100)
+
+ createdAt DateTime @default(now())
+
+
+ trucks Truck[]
+
+}
+
+
+
+model Truck {
+
+ id String @id @default(uuid())
+
+ plate String @unique
+
+ driver String
+
+ status String
+
+ supplierId String
+
+
+ supplier Supplier @relation(fields:[supplierId], references:[id])
+
+
+ loads Load[]
+
+}
+
+
+
+model Load {
+
+ id String @id @default(uuid())
+
+ product String
+
+ quantity Int
+
+ scheduled DateTime
+
+ arrival DateTime?
+
+
+ status StatusCarga @default(PROGRAMADA)
+
+
+ truckId String
+
+
+ truck Truck @relation(fields:[truckId], references:[id])
+
+}
+
+
+
+model Alert {
+
+
+ id String @id @default(uuid())
+
+
+ title String
+
+
+ message String
+
+
+ severity String
+
+
+ createdAt DateTime @default(now())
+
+
+}
