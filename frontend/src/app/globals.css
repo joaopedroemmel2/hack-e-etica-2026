@@ -1,0 +1,43 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-destructive: var(--destructive);
+  --font-sans: var(--font-inter);
+}
+
+:root {
+  --background: #f7f8fa;
+  --foreground: #172033;
+  --card: #ffffff;
+  --card-foreground: #172033;
+  --primary: #5746d9;
+  --primary-foreground: #ffffff;
+  --muted: #eef0f5;
+  --muted-foreground: #6b7280;
+  --border: #e3e6ec;
+  --input: #d9dde6;
+  --ring: #5746d9;
+  --destructive: #dc3c4d;
+  --font-inter: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+* { border-color: var(--border); }
+body { background: var(--background); color: var(--foreground); font-family: var(--font-inter); }
+button, a { -webkit-tap-highlight-color: transparent; }
+::selection { background: #dcd8ff; color: #29206e; }
+
+.subtle-grid {
+  background-image: radial-gradient(circle at 1px 1px, rgba(87, 70, 217, .12) 1px, transparent 0);
+  background-size: 24px 24px;
+}

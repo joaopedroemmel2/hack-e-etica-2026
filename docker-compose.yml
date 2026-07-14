@@ -1,0 +1,76 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-flowlog}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-flowlog_dev_password}
+      POSTGRES_DB: ${POSTGRES_DB:-flowlog_db}
+    ports:
+      - '127.0.0.1:${POSTGRES_PORT:-5432}:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-flowlog} -d ${POSTGRES_DB:-flowlog_db}']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      API_PREFIX: ${API_PREFIX:-api}
+      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:3001}
+      ENABLE_SWAGGER: ${ENABLE_SWAGGER:-false}
+      THROTTLE_TTL_MS: ${THROTTLE_TTL_MS:-60000}
+      THROTTLE_LIMIT: ${THROTTLE_LIMIT:-100}
+      DATABASE_URL: postgresql://${POSTGRES_USER:-flowlog}:${POSTGRES_PASSWORD:-flowlog_dev_password}@postgres:5432/${POSTGRES_DB:-flowlog_db}?schema=public
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET must be configured}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-15m}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:?JWT_REFRESH_SECRET must be configured}
+      JWT_REFRESH_EXPIRES_IN: ${JWT_REFRESH_EXPIRES_IN:-7d}
+      REFRESH_TOKEN_TTL_DAYS: ${REFRESH_TOKEN_TTL_DAYS:-7}
+      AI_PROVIDER: ${AI_PROVIDER:-rules}
+      AI_API_KEY: ${AI_API_KEY:-}
+      AI_MODEL: ${AI_MODEL:-}
+      AI_BASE_URL: ${AI_BASE_URL:-https://api.openai.com/v1}
+      AI_TIMEOUT_MS: ${AI_TIMEOUT_MS:-30000}
+    command: sh -c "npx prisma migrate deploy && node dist/main.js"
+    ports:
+      - '${BACKEND_PORT:-3000}:3000'
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:3000/api}
+    restart: unless-stopped
+    environment:
+      PORT: 3001
+    ports:
+      - '${FRONTEND_PORT:-3001}:3001'
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp
+    depends_on:
+      backend:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
