@@ -22,25 +22,19 @@ services:
       dockerfile: Dockerfile
     restart: unless-stopped
     environment:
-      NODE_ENV: production
-      PORT: 3000
-      API_PREFIX: ${API_PREFIX:-api}
-      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:3001}
-      ENABLE_SWAGGER: ${ENABLE_SWAGGER:-false}
-      THROTTLE_TTL_MS: ${THROTTLE_TTL_MS:-60000}
-      THROTTLE_LIMIT: ${THROTTLE_LIMIT:-100}
-      DATABASE_URL: postgresql://${POSTGRES_USER:-flowlog}:${POSTGRES_PASSWORD:-flowlog_dev_password}@postgres:5432/${POSTGRES_DB:-flowlog_db}?schema=public
-      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET must be configured}
-      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-15m}
-      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:?JWT_REFRESH_SECRET must be configured}
-      JWT_REFRESH_EXPIRES_IN: ${JWT_REFRESH_EXPIRES_IN:-7d}
-      REFRESH_TOKEN_TTL_DAYS: ${REFRESH_TOKEN_TTL_DAYS:-7}
-      AI_PROVIDER: ${AI_PROVIDER:-rules}
-      AI_API_KEY: ${AI_API_KEY:-}
-      AI_MODEL: ${AI_MODEL:-}
-      AI_BASE_URL: ${AI_BASE_URL:-https://api.openai.com/v1}
-      AI_TIMEOUT_MS: ${AI_TIMEOUT_MS:-30000}
-    command: sh -c "npx prisma migrate deploy && node dist/main.js"
+      APP_ENV: production
+      APP_HOST: 0.0.0.0
+      APP_PORT: 3000
+      API_PREFIX: ${API_PREFIX:-/api}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:3001}
+      ALLOWED_HOSTS: ${ALLOWED_HOSTS:-localhost,127.0.0.1,backend}
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-flowlog}:${POSTGRES_PASSWORD:-flowlog_dev_password}@postgres:5432/${POSTGRES_DB:-flowlog_db}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY:?JWT_SECRET_KEY must be configured}
+      ACCESS_TOKEN_EXPIRE_MINUTES: ${ACCESS_TOKEN_EXPIRE_MINUTES:-15}
+      REFRESH_TOKEN_EXPIRE_DAYS: ${REFRESH_TOKEN_EXPIRE_DAYS:-7}
+      INITIAL_ADMIN_NAME: ${INITIAL_ADMIN_NAME:-}
+      INITIAL_ADMIN_EMAIL: ${INITIAL_ADMIN_EMAIL:-}
+      INITIAL_ADMIN_PASSWORD: ${INITIAL_ADMIN_PASSWORD:-}
     ports:
       - '${BACKEND_PORT:-3000}:3000'
     security_opt:
